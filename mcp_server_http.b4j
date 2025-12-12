@@ -1,0 +1,59 @@
+﻿AppType=StandardJava
+Build1=Default,b4j.example
+Group=Default Group
+Library1=jcore
+Library2=jserver
+Library3=jsql
+Library4=json
+Module1=MCPStreamHandler
+NumberOfFiles=0
+NumberOfLibraries=4
+NumberOfModules=1
+Version=10.3
+@EndOfDesignText@
+'Non-UI application (console / server application)
+#Region Project Attributes 
+	#CommandLineArgs:
+	#MergeLibraries: True
+#End Region
+#AdditionalJar: sqlite-jdbc-3.7.2
+' Build the jar in release, kill the process and run in a new cmd
+#Macro: Title, Open Console, ide://run?file=%COMSPEC%&Args=/c&Args=start&Args=run.bat
+
+Sub Process_Globals
+    Public sql As SQL
+    Public srvr As Server
+End Sub
+
+' <link>Open in browser|http://127.0.0.1:8080/mcp</link>
+Sub AppStart (Args() As String)
+	InitDatabase
+    
+	srvr.Initialize("")
+	srvr.Port = 8080 ' Standard HTTP port for development
+    
+	' Add the handler for the MCP endpoint
+	srvr.AddHandler("/mcp", "MCPStreamHandler", False)
+    
+	srvr.Start
+	'Log("MCP Streamable Server started on port 8080")
+
+	' Create a batch file
+	If File.Exists(File.DirApp, "run.bat") = False Then
+		File.WriteString(File.DirApp, "run.bat", GetSystemProperty("sun.boot.library.path", "C:\Java\jdk-19.0.2\bin") & "\java -jar mcp_server_http.jar")
+	End If	
+	StartMessageLoop
+End Sub
+
+' (InitDatabase and ExecuteQuery subs remain the same here)
+Sub InitDatabase
+    If File.Exists(File.DirApp, "inventory.db") = False Then
+        sql.InitializeSQLite(File.DirApp, "inventory.db", True)
+        sql.ExecNonQuery("CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, stock INTEGER, price REAL)")
+        sql.ExecNonQuery("INSERT INTO products (name, stock, price) VALUES ('Wireless Mouse', 50, 25.00)")
+        sql.ExecNonQuery("INSERT INTO products (name, stock, price) VALUES ('Mechanical Keyboard', 10, 120.00)")
+        sql.ExecNonQuery("INSERT INTO products (name, stock, price) VALUES ('USB-C Cable', 100, 5.50)")
+    Else
+        sql.InitializeSQLite(File.DirApp, "inventory.db", True)
+    End If
+End Sub

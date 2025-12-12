@@ -144,14 +144,14 @@ End Sub
 Sub CreateResponse (id As Object, result As Map) As String
     If id = Null Then Return ""
     Dim res As Map = CreateMap("jsonrpc": "2.0", "id": id, "result": result)
-    Return res.As(JSON).ToString
+    Return res.As(JSON).ToCompactString
 End Sub
 
 Sub CreateError (id As Object, code As Int, message As String) As String
     If id = Null Then Return ""
     Dim errMap As Map = CreateMap("code": code, "message": message)
     Dim res As Map = CreateMap("jsonrpc": "2.0", "id": id, "error": errMap)
-    Return res.As(JSON).ToString
+    Return res.As(JSON).ToCompactString
 End Sub
 
 ' --- Chunked Transfer Encoding Helper ---
